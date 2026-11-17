@@ -128,13 +128,18 @@ The daemon logs to `/var/log/tetherd.log`.
 
 - **Root is required**, to create interfaces and open BPF.
 - **Not in System Settings.** `feth` interfaces do not appear under
-  System Settings → Network. Check the connection with `ifconfig feth0`.
+  System Settings → Network. Check the connection in Tether's panel or with
+  `ifconfig feth0`.
 - **One driver at a time.** If TetherKit.kext, the TetherKit DriverKit
   extension or HoRNDIS is loaded, it claims the phone first and `tetherd`
   reports the interface as in use. Use one or the other.
 - **One phone at a time.**
 - **Slower than a kernel driver.** Every frame is copied through BPF and one
-  frame is sent per USB transfer. Fine at tethering speeds.
+  frame is sent per USB transfer (with several transfers in flight). Fine at
+  mobile network speeds.
+- **IPv4 only as main connection.** `--primary` promotes the phone's IPv4
+  service; if Wi-Fi has IPv6 and the phone does not, IPv6 traffic can still
+  use Wi-Fi.
 - **Composite devices only.** The phone must present RNDIS as an interface of a
   composite USB device, which is what Android does. The rare device-level
   variant (device class 224/0/0, some older Samsung phones) is not handled.
@@ -143,17 +148,19 @@ The daemon logs to `/var/log/tetherd.log`.
 
 ## Status
 
-Builds cleanly, and `--list` finds a real phone (a Redmi Note 13) and correctly
-reports it as claimed when TetherKit.kext is loaded. The RNDIS exchange and the
-`feth`/BPF data path have **not yet been run**: they need root, and the phone
-free of any other tethering driver. Expect to debug the first run, with `-v`.
+Works on macOS 27 with a Redmi Note 13 NFC and a Redmi Note 14 5G, through
+both the command line and `Tether.app`:
 
-Two things in particular are unverified:
+- the phone hands out an address over DHCP within a few seconds (some phones
+  ignore the first request on a new link; `tetherd` asks again after 4 s);
+- traffic and DNS flow through the phone, and with `--primary` it stays the
+  Mac's main connection with Wi-Fi on, handing back to Wi-Fi on disconnect;
+- measured throughput, about 4 MB/s (33 Mbit/s) down and up, matched a speed
+  test run on the phone itself, so the mobile network was the limit; the
+  daemon used 10-20 % of one core at that rate.
 
-- that `ipconfig set <feth> DHCP` makes macOS use the interface for the default
-  route and DNS. If it gets an address but traffic does not flow, compare
-  `netstat -rn` and `scutil --dns` and consider `--no-dhcp` with manual setup;
-- that the host stack fills in checksums on frames leaving a `feth` interface.
+Not yet tried: the Intel build on a real Intel Mac (it runs under Rosetta),
+and phones other than these two.
 
 ## Layout
 
