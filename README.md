@@ -1,6 +1,18 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/icon-dark.png">
+    <img src="docs/icon.png" width="128" height="128" alt="Tether app icon">
+  </picture>
+</p>
+
 # tetherd
 
-Android USB tethering (RNDIS) for macOS, done entirely in userspace.
+Android USB tethering (RNDIS) for macOS, done entirely in userspace, with
+**Tether**, a menu bar app to switch it on and off.
+
+<p align="center">
+  <img src="docs/panel.png" width="322" alt="Tether's Liquid Glass panel, connected to a Redmi Note 13 NFC: interface feth0, address 10.191.118.213, the &quot;Use phone as main connection&quot; switch and a Disconnect button">
+</p>
 
 `tetherd` is a small root daemon. It needs no kernel extension, no DriverKit
 extension, no Apple Developer account, no code signature, and no change to SIP
